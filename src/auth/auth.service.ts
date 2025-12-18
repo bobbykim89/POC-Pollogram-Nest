@@ -80,6 +80,99 @@ export class AuthService {
       .select()
       .from(usersTable)
       .where(eq(usersTable.email, email))
+    if (!user) throw new UnauthorizedException('Invalid credentials')
+    // verify password
+    const isPasswordValid = await bcrypt.compare(password, user.password)
+    if (!isPasswordValid) throw new UnauthorizedException('Invalid credentials')
+    // get profile
+    const [profile] = await this.dbService.db
+      .select()
+      .from(profileTable)
+      .where(eq(profileTable.userId, user.id))
+
+    // generate tokens
+    const tokens = await this.generateTokens(user.id, user.email, user.role)
+
+    // store refresh token
+    await this.storeRefreshToken(user.id, tokens.refreshToken, metadata)
+
+    return {
+      user: {
+        id: user.id,
+        email: user.email,
+        role: user.role,
+        profile: profile ? { username: profile.username } : null,
+      },
+      ...tokens,
+    }
+  }
+  async refreshTokens(
+    userId: number,
+    refreshToken: string,
+    metadata?: TokenMetadata,
+  ) {
+    // hash the incoming token to compare with stored hash
+    const hashedToken = await bcrypt.hash(refreshToken, 10)
+    // find the refresh token
+    const [storedToken] = await this.dbService.db
+      .select()
+      .from(refreshTokensTable)
+      .where(
+        and(
+          eq(refreshTokensTable.userId, userId),
+          gt(refreshTokensTable.expiresAt, new Date()), // not expired
+          isNull(refreshTokensTable.isRevoked), // not revoked
+        ),
+      )
+    if (!storedToken) throw new UnauthorizedException('Invalid refresh token')
+    // verify the token matches
+    const isTokenValid = await bcrypt.compare(refreshToken, storedToken.token)
+    // potential token reuse attack - revoke all tokens for this user
+    if (!isTokenValid) {
+      await this.revokeAllTokens(userId)
+      throw new UnauthorizedException(
+        'Token reuse detected. All sessions revoked',
+      )
+    }
+    // get user info
+    const [user] = await this.dbService.db
+      .select()
+      .from(usersTable)
+      .where(eq(usersTable.id, userId))
+    if (!user) throw new UnauthorizedException('User not found')
+    // revoke old token
+    await this.dbService.db
+      .update(refreshTokensTable)
+      .set({ isRevoked: new Date() })
+      .where(eq(refreshTokensTable.id, storedToken.id))
+    // generate new tokens
+    const tokens = await this.generateTokens(user.id, user.email, user.role)
+    // store new refresh token
+    await this.storeRefreshToken(user.id, tokens.refreshToken, metadata)
+    return tokens
+  }
+  async logout(userId: number, refreshToken?: string) {
+    if (!refreshToken) {
+      // Logout from all devices
+      await this.revokeAllTokens(userId)
+      return { message: 'Logged out successfully' }
+    }
+    // Logout from specific device
+    const [storedToken] = await this.dbService.db
+      .select()
+      .from(refreshTokensTable)
+      .where(eq(refreshTokensTable.userId, userId))
+    if (!storedToken) return { message: 'Logged out successfully' }
+
+    const isTokenValid = await bcrypt.compare(refreshToken, storedToken.token)
+    if (!isTokenValid) return { message: 'Logged out successfully' }
+
+    await this.dbService.db
+      .update(refreshTokensTable)
+      .set({ isRevoked: new Date() })
+      .where(eq(refreshTokensTable.id, storedToken.id))
+
+    return { message: 'Logged out successfully' }
   }
   async getActiveSessions(userId: number) {
     const sessions = await this.dbService.db
