@@ -14,7 +14,6 @@ import {
 import { AuthService } from './auth.service'
 import { SignUpDto, SignInDto } from './dto'
 import { JwtRefreshGuard, JwtAuthGuard } from './guards'
-import { JwtAccessStrategy, JwtRefreshStrategy } from './strategies'
 import { type Request } from 'express'
 import { GetUser } from './decorator'
 import type { ReqAuthType } from './types'
