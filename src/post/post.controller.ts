@@ -24,6 +24,6 @@ export class PostController {
 
   @Get('pollito')
   async getPollito() {
-    return 'pio pio'
+    return { message: 'pio pio' }
   }
 }

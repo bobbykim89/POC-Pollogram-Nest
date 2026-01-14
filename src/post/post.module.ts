@@ -5,7 +5,7 @@ import { PostService } from './post.service'
 import { CloudinaryModule } from '../cloudinary/cloudinary.module'
 
 @Module({
-  imports: [DbModule, CloudinaryModule],
+  imports: [CloudinaryModule],
   controllers: [PostController],
   providers: [PostService],
   exports: [PostService],
