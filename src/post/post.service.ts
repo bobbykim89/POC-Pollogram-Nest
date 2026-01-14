@@ -18,9 +18,11 @@ export class PostService {
     private cloudinaryService: CloudinaryService,
   ) {}
 
-  public async getPostList() {
+  public async getPostList(limit: number = 20, offset: number = 20) {
     const postList = await this.dbService.db.query.postTable.findMany({
       orderBy: desc(s.postTable.createdAt),
+      limit: limit,
+      offset: offset,
     })
     return postList
   }
@@ -47,9 +49,9 @@ export class PostService {
     return posts
   }
 
-  public async getPostDetail(id: string) {
+  public async getPostDetail(id: number) {
     const currentPost = this.dbService.db.query.postTable.findFirst({
-      where: eq(s.postTable.id, parseInt(id)),
+      where: eq(s.postTable.id, id),
       with: {
         comments: true,
         likedBy: true,
@@ -61,20 +63,20 @@ export class PostService {
   }
 
   public async createPost(
-    userId: string,
+    userId: number,
     dto: NewPostDto,
     file: Express.Multer.File,
   ) {
     const currentUserProfile =
       await this.dbService.db.query.profileTable.findFirst({
-        where: eq(s.profileTable.userId, parseInt(userId)),
+        where: eq(s.profileTable.userId, userId),
       })
     if (!currentUserProfile)
       throw new NotFoundException('User profile not found.')
 
     const cloudinaryRes = await this.cloudinaryService.uploadPostImage(
       file,
-      parseInt(userId),
+      userId,
     )
     const [newPost] = await this.dbService.db
       .insert(s.postTable)
@@ -87,7 +89,7 @@ export class PostService {
     return newPost
   }
 
-  public async deletePost(user: ReqAuthType, postId: string) {
+  public async deletePost(user: ReqAuthType, postId: number) {
     const currentUserProfile =
       await this.dbService.db.query.profileTable.findFirst({
         where: eq(s.profileTable.id, user.userId),
@@ -95,7 +97,7 @@ export class PostService {
     if (!currentUserProfile)
       throw new NotFoundException('User profile not found.')
     const targetPost = await this.dbService.db.query.postTable.findFirst({
-      where: eq(s.postTable.id, parseInt(postId)),
+      where: eq(s.postTable.id, postId),
     })
     if (!targetPost)
       throw new HttpException('Post not found', HttpStatus.NOT_FOUND)
