@@ -61,6 +61,42 @@ export class CloudinaryService {
     })
   }
 
+  async uploadPostImage(
+    file: Express.Multer.File,
+    userId: number,
+  ): Promise<CloudinaryUploadResult> {
+    const folder = this.config.get('CLOUDINARY_TARGET_FOLDER')
+
+    return new Promise((resolve, reject) => {
+      const uploadStream = cloudinary.uploader.upload_stream(
+        {
+          folder: `${folder}/posts`,
+          public_id: `post-${userId}-${Date.now()}`,
+          resource_type: 'image',
+          allowed_formats: ['jpg', 'jpeg', 'png', 'gif', 'webp'],
+          transformation: [
+            { width: 1200, height: 1200, crop: 'limit' }, // Max dimensions for posts
+            { quality: 'auto' },
+            { fetch_format: 'auto' },
+          ],
+        },
+        (error: UploadApiErrorResponse, result: UploadApiResponse) => {
+          if (error) reject(new BadRequestException(error.message))
+          resolve({
+            publicId: result.public_id,
+            url: result.url,
+            secureUrl: result.secure_url,
+            width: result.width,
+            height: result.height,
+            format: result.format,
+            resourceType: result.resource_type,
+          })
+        },
+      )
+      this.bufferToStream(file.buffer).pipe(uploadStream)
+    })
+  }
+
   async uploadProfileImage(
     file: Express.Multer.File,
     userId: number,
