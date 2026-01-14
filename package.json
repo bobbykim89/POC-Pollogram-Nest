@@ -19,6 +19,9 @@
     "test:cov": "dotenv -e .env -e .env.dev -- jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
+    "generate:schema": "drizzle-kit generate --config=drizzle.config.ts",
+    "db:migrate:dev": "dotenv -e .env -e .env.dev -- tsx ./src/db/migrate.ts",
+    "db:migrate:prod": "dotenv -e .env -e .env.prod -- tsx ./src/db/migrate.ts",
     "cdk:bootstrap": "dotebv -e .env -- cd ./cdk && cdk bootstrap",
     "cdk:deploy:prod": "dotenv -e .env -e .env.prod -- cdk deploy Prod/*",
     "cdk:deploy:dev": "dotenv -e .env -e .env.dev -- cdk deploy Dev/*",
@@ -45,7 +48,8 @@
     "passport-jwt": "^4.0.1",
     "postgres": "^3.4.7",
     "reflect-metadata": "^0.2.2",
-    "rxjs": "^7.8.1"
+    "rxjs": "^7.8.1",
+    "tsx": "^4.21.0"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.2.0",
