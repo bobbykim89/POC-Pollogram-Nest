@@ -12,6 +12,7 @@ import {
   MaxFileSizeValidator,
   FileTypeValidator,
   Param,
+  ParseIntPipe,
 } from '@nestjs/common'
 import { FileInterceptor } from '@nestjs/platform-express'
 import { ProfileService } from './profile.service'
@@ -65,8 +66,24 @@ export class ProfileController {
     return await this.profileService.uploadProfileImage(user.userId, file)
   }
 
-  @Delete('etid/image')
+  @Delete('edit/image')
   async deleteProfileImage(@GetUser() user: ReqAuthType) {
     return await this.profileService.deleteProfileImage(user.userId)
+  }
+
+  @Post(':profileId/follow')
+  async followUser(
+    @Param('profileId', ParseIntPipe) profileId: number,
+    @GetUser() user: ReqAuthType,
+  ) {
+    return await this.profileService.followProfile(profileId, user)
+  }
+
+  @Delete(':profileId/follow')
+  async unfollowUser(
+    @Param('profileId', ParseIntPipe) profileId: number,
+    @GetUser() user: ReqAuthType,
+  ) {
+    return await this.profileService.unfollowProfile(profileId, user)
   }
 }

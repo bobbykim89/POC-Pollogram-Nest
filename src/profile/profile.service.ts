@@ -1,13 +1,16 @@
 import {
   BadRequestException,
+  HttpException,
+  HttpStatus,
   Injectable,
   NotFoundException,
 } from '@nestjs/common'
 import { DbService } from '../db/db.service'
 import * as s from '../db/schema'
-import { eq, desc } from 'drizzle-orm'
+import { eq, desc, and } from 'drizzle-orm'
 import { UpdateProfileDto } from './dto'
 import { CloudinaryService } from '../cloudinary/cloudinary.service'
+import { ReqAuthType } from '../auth/types'
 
 @Injectable()
 export class ProfileService {
@@ -134,5 +137,56 @@ export class ProfileService {
       .where(eq(s.profileTable.userId, userId))
 
     return { message: 'Profile image deleted successfully' }
+  }
+
+  async followProfile(profileId: number, user: ReqAuthType) {
+    const [currentUserProfile] = await this.dbService.db
+      .select()
+      .from(s.profileTable)
+      .where(eq(s.profileTable.id, user.userId))
+    const [targetUserProfile] = await this.dbService.db
+      .select()
+      .from(s.profileTable)
+      .where(eq(s.profileTable.id, profileId))
+    if (!currentUserProfile || !targetUserProfile)
+      throw new HttpException('User profile not found', HttpStatus.NOT_FOUND)
+    await this.dbService.db.insert(s.follow).values({
+      followedById: currentUserProfile.id,
+      followingId: targetUserProfile.id,
+    })
+    return { message: 'Successfully followed user' }
+  }
+
+  async unfollowProfile(profileId: number, user: ReqAuthType) {
+    const [currentUserProfile] = await this.dbService.db
+      .select()
+      .from(s.profileTable)
+      .where(eq(s.profileTable.id, user.userId))
+    const [targetUserProfile] = await this.dbService.db
+      .select()
+      .from(s.profileTable)
+      .where(eq(s.profileTable.id, profileId))
+    if (!currentUserProfile || !targetUserProfile)
+      throw new HttpException('User profile not found', HttpStatus.NOT_FOUND)
+    const [checkFollow] = await this.dbService.db
+      .select()
+      .from(s.follow)
+      .where(
+        and(
+          eq(s.follow.followedById, currentUserProfile.id),
+          eq(s.follow.followingId, targetUserProfile.id),
+        ),
+      )
+    if (!checkFollow)
+      throw new HttpException('Not found.', HttpStatus.NOT_FOUND)
+    await this.dbService.db
+      .delete(s.follow)
+      .where(
+        and(
+          eq(s.follow.followedById, currentUserProfile.id),
+          eq(s.follow.followingId, targetUserProfile.id),
+        ),
+      )
+    return { message: 'Successfully unfollowed user.' }
   }
 }
