@@ -2,13 +2,11 @@ import {
   Controller,
   Get,
   Post,
-  Patch,
   Delete,
   Body,
   Param,
   Query,
   UseGuards,
-  Req,
   UseInterceptors,
   UploadedFile,
   ParseIntPipe,
@@ -92,5 +90,23 @@ export class PostController {
     @GetUser() user: ReqAuthType,
   ) {
     return await this.postService.deletePost(user, postId)
+  }
+
+  @Post(':postId/like')
+  @UseGuards(JwtAuthGuard)
+  async likePost(
+    @Param('postId', ParseIntPipe) postId: number,
+    @GetUser() user: ReqAuthType,
+  ) {
+    return await this.postService.likePost(postId, user)
+  }
+
+  @Delete(':postId/like')
+  @UseGuards(JwtAuthGuard)
+  async unlikePost(
+    @Param('postId', ParseIntPipe) postId: number,
+    @GetUser() user: ReqAuthType,
+  ) {
+    return this.postService.unlikePost(postId, user)
   }
 }
