@@ -114,7 +114,7 @@ export class PostService {
     return { message: 'Successfully deleted post.' }
   }
 
-  public async likePost(postId: string, user: ReqAuthType) {
+  public async likePost(postId: number, user: ReqAuthType) {
     const [currentUserProfile] = await this.dbService.db
       .select()
       .from(s.profileTable)
@@ -123,7 +123,7 @@ export class PostService {
     const [targetPost] = await this.dbService.db
       .select()
       .from(s.postTable)
-      .where(eq(s.postTable.id, parseInt(postId)))
+      .where(eq(s.postTable.id, postId))
     if (!currentUserProfile)
       throw new NotFoundException('User profile not found.')
     if (!targetPost) throw new NotFoundException('Post not found.')
@@ -135,7 +135,7 @@ export class PostService {
     })
     return { message: 'Successfully liked the post' }
   }
-  public async unlikePost(postId: string, user: ReqAuthType) {
+  public async unlikePost(postId: number, user: ReqAuthType) {
     const [currentUserProfile] = await this.dbService.db
       .select()
       .from(s.profileTable)
@@ -144,12 +144,24 @@ export class PostService {
     const [targetPost] = await this.dbService.db
       .select()
       .from(s.postTable)
-      .where(eq(s.postTable.id, parseInt(postId)))
+      .where(eq(s.postTable.id, postId))
     if (!currentUserProfile)
       throw new NotFoundException('User profile not found.')
     if (!targetPost) throw new NotFoundException('Post not found.')
     if (targetPost.profileId !== currentUserProfile.id)
       throw new HttpException('Unauthorized', HttpStatus.UNAUTHORIZED)
+    // check if user liked this post
+    const [checkLike] = await this.dbService.db
+      .select()
+      .from(s.postLike)
+      .where(
+        and(
+          eq(s.postLike.postId, targetPost.id),
+          eq(s.postLike.profileId, currentUserProfile.id),
+        ),
+      )
+    // throw error if like doesn't exist
+    if (!checkLike) throw new HttpException('Not found', HttpStatus.NOT_FOUND)
 
     await this.dbService.db
       .delete(s.postLike)
