@@ -1,5 +1,4 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common'
-import { ConfigModule } from '@nestjs/config'
 import { DbService } from '../db/db.service'
 import { CommentInputDto } from './dto'
 import * as s from '../db/schema'
@@ -8,12 +7,13 @@ import type { ReqAuthType } from '../auth/types'
 
 @Injectable()
 export class CommentService {
-  constructor(
-    private dbService: DbService,
-    private config: ConfigModule,
-  ) {}
+  constructor(private dbService: DbService) {}
 
-  public async listComments(postId: number) {
+  public async listComments(
+    postId: number,
+    limit: number = 20,
+    offset: number = 20,
+  ) {
     const commentList = await this.dbService.db.query.commentTable.findMany({
       where: eq(s.commentTable.postId, postId),
       orderBy: desc(s.commentTable.createdAt),
@@ -21,6 +21,8 @@ export class CommentService {
         userProfile: true,
         likedBy: true,
       },
+      limit: limit,
+      offset: offset,
     })
 
     return commentList

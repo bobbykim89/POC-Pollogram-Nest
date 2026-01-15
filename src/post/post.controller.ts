@@ -55,6 +55,7 @@ export class PostController {
   }
 
   @Get('user/:userId')
+  @UseGuards(JwtAuthGuard)
   async findUserPost(
     @Param('userId', ParseIntPipe) userId: number,
     @Query('limit', new DefaultValuePipe(20), ParseIntPipe) limit: number,
@@ -79,6 +80,7 @@ export class PostController {
   }
 
   @Get(':postId')
+  @UseGuards(JwtAuthGuard)
   async getPostDetail(@Param('postId', ParseIntPipe) postId: number) {
     return await this.postService.getPostDetail(postId)
   }
