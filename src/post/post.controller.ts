@@ -14,6 +14,8 @@ import {
   MaxFileSizeValidator,
   FileTypeValidator,
   DefaultValuePipe,
+  HttpStatus,
+  HttpCode,
 } from '@nestjs/common'
 import { PostService } from './post.service'
 import { FileInterceptor } from '@nestjs/platform-express'
@@ -27,6 +29,7 @@ export class PostController {
   constructor(private postService: PostService) {}
 
   @Get()
+  @HttpCode(HttpStatus.OK)
   async getPostList(
     @Query('limit', new DefaultValuePipe(20), ParseIntPipe) limit: number,
     @Query('offset', new DefaultValuePipe(0), ParseIntPipe) offset: number,
@@ -35,6 +38,7 @@ export class PostController {
   }
 
   @Post()
+  @HttpCode(HttpStatus.OK)
   @UseGuards(JwtAuthGuard)
   @UseInterceptors(FileInterceptor('image'))
   async createPost(
@@ -55,6 +59,7 @@ export class PostController {
   }
 
   @Get('user/:userId')
+  @HttpCode(HttpStatus.OK)
   @UseGuards(JwtAuthGuard)
   async findUserPost(
     @Param('userId', ParseIntPipe) userId: number,
@@ -65,6 +70,7 @@ export class PostController {
   }
 
   @Get('current-user')
+  @HttpCode(HttpStatus.OK)
   @UseGuards(JwtAuthGuard)
   async findCurrentUserPost(
     @GetUser() user: ReqAuthType,
@@ -75,17 +81,20 @@ export class PostController {
   }
 
   @Get('pollito')
+  @HttpCode(HttpStatus.OK)
   async getPollito() {
     return { message: 'pio pio' }
   }
 
   @Get(':postId')
+  @HttpCode(HttpStatus.OK)
   @UseGuards(JwtAuthGuard)
   async getPostDetail(@Param('postId', ParseIntPipe) postId: number) {
     return await this.postService.getPostDetail(postId)
   }
 
   @Delete(':postId')
+  @HttpCode(HttpStatus.OK)
   @UseGuards(JwtAuthGuard)
   async deletePost(
     @Param('postId', ParseIntPipe) postId: number,
@@ -95,6 +104,7 @@ export class PostController {
   }
 
   @Post(':postId/like')
+  @HttpCode(HttpStatus.OK)
   @UseGuards(JwtAuthGuard)
   async likePost(
     @Param('postId', ParseIntPipe) postId: number,
@@ -104,6 +114,7 @@ export class PostController {
   }
 
   @Delete(':postId/like')
+  @HttpCode(HttpStatus.OK)
   @UseGuards(JwtAuthGuard)
   async unlikePost(
     @Param('postId', ParseIntPipe) postId: number,
