@@ -9,6 +9,8 @@ import {
   UseGuards,
   ParseIntPipe,
   DefaultValuePipe,
+  HttpCode,
+  HttpStatus,
 } from '@nestjs/common'
 import { JwtAuthGuard } from '../auth/guards'
 import { GetUser } from '../auth/decorator'
@@ -22,6 +24,7 @@ export class CommentController {
   constructor(private commentService: CommentService) {}
 
   @Get(':postId')
+  @HttpCode(HttpStatus.OK)
   async getCommentsList(
     @Param('postId', ParseIntPipe) postId: number,
     @Query('limit', new DefaultValuePipe(20), ParseIntPipe) limit: number,
@@ -31,6 +34,7 @@ export class CommentController {
   }
 
   @Post(':postId')
+  @HttpCode(HttpStatus.OK)
   async createNewComment(
     @Param('postId', ParseIntPipe) postId: number,
     @GetUser() user: ReqAuthType,
@@ -40,6 +44,7 @@ export class CommentController {
   }
 
   @Delete(':commentId')
+  @HttpCode(HttpStatus.OK)
   async deleteComment(
     @Param('commentId', ParseIntPipe) commentId: number,
     @GetUser() user: ReqAuthType,
@@ -48,6 +53,7 @@ export class CommentController {
   }
 
   @Post(':commentId/like')
+  @HttpCode(HttpStatus.OK)
   async likeComment(
     @Param('commentId', ParseIntPipe) commentId: number,
     @GetUser() user: ReqAuthType,
@@ -56,6 +62,7 @@ export class CommentController {
   }
 
   @Delete(':commentId/like')
+  @HttpCode(HttpStatus.OK)
   async unlikeComment(
     @Param('commentId', ParseIntPipe) commentId: number,
     @GetUser() user: ReqAuthType,
