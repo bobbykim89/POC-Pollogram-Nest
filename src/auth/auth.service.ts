@@ -111,8 +111,6 @@ export class AuthService {
     refreshToken: string,
     metadata?: TokenMetadata,
   ) {
-    // hash the incoming token to compare with stored hash
-    const hashedToken = await bcrypt.hash(refreshToken, 10)
     // find the refresh token
     const [storedToken] = await this.dbService.db
       .select()
