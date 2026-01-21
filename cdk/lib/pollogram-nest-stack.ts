@@ -19,6 +19,16 @@ export class PollogramStack extends cdk.Stack {
       memorySize: 512,
       environment: {
         NODE_ENV: 'production',
+        ADMIN_SECRET_PHRASE: process.env.ADMIN_SECRET_PHRASE!,
+        JWT_ACCESS_SECRET: process.env.JWT_ACCESS_SECRET!,
+        JWT_REFRESH_SECRET: process.env.JWT_REFRESH_SECRET!,
+        JWT_ACCESS_EXPIRATION: process.env.JWT_ACCESS_EXPIRATION!,
+        JWT_REFRESH_EXPIRATION: process.env.JWT_REFRESH_EXPIRATION!,
+        CLOUDINARY_CLOUD_NAME: process.env.CLOUDINARY_CLOUD_NAME!,
+        CLOUDINARY_API_KEY: process.env.CLOUDINARY_API_KEY!,
+        CLOUDINARY_API_SECRET: process.env.CLOUDINARY_API_SECRET!,
+        DATABASE_URL: process.env.DATABASE_URL!,
+        CLOUDINARY_TARGET_FOLDER: process.env.CLOUDINARY_TARGET_FOLDER!,
       },
       bundling: {
         minify: true,
