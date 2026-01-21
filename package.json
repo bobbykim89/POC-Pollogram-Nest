@@ -22,11 +22,13 @@
     "generate:schema": "drizzle-kit generate --config=drizzle.config.ts",
     "db:migrate:dev": "dotenv -e .env -e .env.dev -- tsx ./src/db/migrate.ts",
     "db:migrate:prod": "dotenv -e .env -e .env.prod -- tsx ./src/db/migrate.ts",
-    "cdk:bootstrap": "dotebv -e .env -- cd ./cdk && cdk bootstrap",
-    "cdk:deploy:prod": "dotenv -e .env -e .env.prod -- cdk deploy Prod/*",
-    "cdk:deploy:dev": "dotenv -e .env -e .env.dev -- cdk deploy Dev/*",
-    "cdk:destroy:prod": "dotenv -e .env -e .env.prod -- cdk destroy Prod/*",
-    "cdk:destroy:dev": "dotenv -e .env -e .env.dev -- dck destroy Dev/*"
+    "build:prod": "dotenv -e .env -e .env.prod -- nest build",
+    "build:dev": "dotenv -e .env -e .env.dev -- nest build",
+    "cdk:bootstrap": "dotenv -e .env -- pnpm --filter cdk bootstrap",
+    "cdk:deploy:prod": "dotenv -e .env -e .env.prod -- pnpm --filter cdk deploy:prod",
+    "cdk:deploy:dev": "dotenv -e .env -e .env.dev -- pnpm --filter cdk deploy:dev",
+    "cdk:destroy:prod": "dotenv -e .env -e .env.prod -- pnpm --filter cdk destroy:prod",
+    "cdk:destroy:dev": "dotenv -e .env -e .env.dev -- pnpm --filter cdk destroy:dev"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.0.2",
