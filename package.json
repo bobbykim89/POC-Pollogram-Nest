@@ -24,11 +24,11 @@
     "db:migrate:prod": "dotenv -e .env -e .env.prod -- tsx ./src/db/migrate.ts",
     "build:prod": "dotenv -e .env -e .env.prod -- nest build",
     "build:dev": "dotenv -e .env -e .env.dev -- nest build",
-    "cdk:bootstrap": "dotenv -e .env -- pnpm --filter cdk bootstrap",
-    "cdk:deploy:prod": "dotenv -e .env -e .env.prod -- pnpm --filter cdk deploy:prod",
-    "cdk:deploy:dev": "dotenv -e .env -e .env.dev -- pnpm --filter cdk deploy:dev",
-    "cdk:destroy:prod": "dotenv -e .env -e .env.prod -- pnpm --filter cdk destroy:prod",
-    "cdk:destroy:dev": "dotenv -e .env -e .env.dev -- pnpm --filter cdk destroy:dev"
+    "cdk:bootstrap": "dotenv -e .env -- cdk bootstrap",
+    "cdk:deploy:prod": "dotenv -e .env -e .env.prod -- cdk deploy Prod/*",
+    "cdk:deploy:dev": "dotenv -e .env -e .env.dev -- cdk deploy Dev/*",
+    "cdk:destroy:prod": "dotenv -e .env -e .env.prod -- cdk destroy Prod/*",
+    "cdk:destroy:dev": "dotenv -e .env -e .env.dev -- cdk destroy Dev/*"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.0.2",
@@ -51,7 +51,9 @@
     "postgres": "^3.4.7",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1",
-    "tsx": "^4.21.0"
+    "tsx": "^4.21.0",
+    "aws-cdk-lib": "2.215.0",
+    "constructs": "^10.0.0"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.2.0",
@@ -82,7 +84,8 @@
     "ts-node": "^10.9.2",
     "tsconfig-paths": "^4.2.0",
     "typescript": "^5.7.3",
-    "typescript-eslint": "^8.20.0"
+    "typescript-eslint": "^8.20.0",
+    "aws-cdk": "2.1033.0"
   },
   "jest": {
     "moduleFileExtensions": [

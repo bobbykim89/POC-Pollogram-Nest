@@ -14,3 +14,5 @@ new PollogramNestStages(app, 'Dev', {
     region: APP_REGION,
   },
 })
+
+app.synth()
